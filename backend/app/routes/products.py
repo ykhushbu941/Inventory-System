@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import IntegrityError
 from typing import List
 from app.core.database import get_db
 from app.models.models import Product
@@ -45,7 +46,17 @@ def update_product(id: int, updates: ProductUpdate, db: Session = Depends(get_db
 @router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_product(id: int, db: Session = Depends(get_db)):
     product = db.query(Product).filter(Product.id == id).first()
+
     if not product:
         raise HTTPException(status_code=404, detail="Product not found")
-    db.delete(product)
-    db.commit()
+
+    try:
+        db.delete(product)
+        db.commit()
+
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(
+            status_code=400,
+            detail="Cannot delete product because it is used in existing orders"
+        )

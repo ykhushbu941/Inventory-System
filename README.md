@@ -45,14 +45,17 @@ cd backend
 python -m venv venv
 source venv/bin/activate  # Windows: venv\Scripts\activate
 pip install -r requirements.txt
-DATABASE_URL=postgresql://postgres:postgres@localhost:5432/inventory_db uvicorn app.main:app --reload
+
+$env:DATABASE_URL="postgresql://postgres:Viraj@1234@localhost:5432/inventory_db"
+python -m uvicorn app.main:app --reload
 ```
 
 ### Frontend
 ```bash
 cd frontend
 npm install
-VITE_API_URL=http://localhost:8000 npm run dev
+$env:VITE_API_URL="http://localhost:8000"
+npm run dev
 ```
 
 ---
